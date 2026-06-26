@@ -108,39 +108,68 @@
     }
   }
 
-  // Build a clean, table-like layout of the enquiry details.
-  // NOTE: mailto: bodies are delivered as plain text (email clients do not
-  // honour HTML in a mailto link), so we lay the details out as an aligned
-  // text "table" that reads cleanly in any mail app.
+  // Build a clean, professionally formatted enquiry body.
+  // NOTE: mailto: bodies are delivered as PLAIN TEXT (email clients do not
+  // honour HTML/CSS in a mailto link). So "modern" here means a tidy, well
+  // spaced layout with aligned labels and rule separators that reads cleanly
+  // in any mail app — no fragile ASCII-table borders.
+  var MAIL_WIDTH = 60; // wrap column for the message and rule lines
+
+  // Word-wrap a paragraph to `width`, indenting each line; hard-breaks any
+  // single token longer than the column (e.g. a pasted URL or "TTTT..." run).
+  function wrapText(text, width, indent) {
+    var out = [];
+    String(text).split(/\r?\n/).forEach(function (para) {
+      if (!para.trim()) { out.push(""); return; }
+      var line = "";
+      para.split(/\s+/).forEach(function (word) {
+        while (word.length > width) {
+          if (line) { out.push(indent + line); line = ""; }
+          out.push(indent + word.slice(0, width));
+          word = word.slice(width);
+        }
+        if (!line) line = word;
+        else if ((line + " " + word).length <= width) line += " " + word;
+        else { out.push(indent + line); line = word; }
+      });
+      if (line) out.push(indent + line);
+    });
+    return out;
+  }
+
   function buildEnquiryBody(data) {
+    var heavy = new Array(MAIL_WIDTH + 1).join("═");
+    var light = new Array(MAIL_WIDTH + 1).join("─");
+
     var rows = [
-      ["Full Name", data.name],
+      ["Name", data.name],
       ["Email", data.email],
       ["Phone", data.phone || "—"],
-      ["Project Type", data.service || "—"]
+      ["Project", data.service || "—"]
     ];
-    var label = "Field";
-    var width = rows.reduce(function (m, r) { return Math.max(m, r[0].length); }, label.length);
-    function pad(s) { return s + new Array(width - s.length + 1).join(" "); }
+    var labelW = rows.reduce(function (m, r) { return Math.max(m, r[0].length); }, 0);
+    function field(label, value) {
+      var pad = new Array(labelW - label.length + 1).join(" ");
+      return "  " + label + pad + "   " + value;
+    }
 
-    var line = "+" + new Array(width + 3).join("-") + "+" + new Array(42).join("-") + "+";
     var lines = [];
-    lines.push("New Project Enquiry — BrightPine Solutions");
-    lines.push("===========================================");
+    lines.push(heavy);
+    lines.push("  NEW PROJECT ENQUIRY");
+    lines.push("  BrightPine Solutions");
+    lines.push(heavy);
     lines.push("");
-    lines.push(line);
-    lines.push("| " + pad(label) + " | " + "Details" + new Array(42 - "Details".length - 1).join(" ") + "|");
-    lines.push(line);
-    rows.forEach(function (r) {
-      lines.push("| " + pad(r[0]) + " | " + r[1]);
-    });
-    lines.push(line);
+    lines.push("CONTACT DETAILS");
+    lines.push(light);
+    rows.forEach(function (r) { lines.push(field(r[0], r[1])); });
     lines.push("");
-    lines.push("Project Details:");
-    lines.push("----------------");
-    lines.push(data.message);
+    lines.push("PROJECT DETAILS");
+    lines.push(light);
+    lines.push.apply(lines, wrapText(data.message, MAIL_WIDTH - 2, "  "));
     lines.push("");
-    lines.push("— Sent from the BrightPine Solutions website enquiry form");
+    lines.push(light);
+    lines.push("Submitted via the BrightPine Solutions website enquiry form.");
+    lines.push("Please reply directly to this email to respond to the client.");
     return lines.join("\n");
   }
 

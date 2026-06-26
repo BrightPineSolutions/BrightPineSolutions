@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/d/Santhosh/Own Projects/**)",
+      "Read(//d/d/Santhosh/Own Projects/BrightPineSolutions/**)",
+      "PowerShell(dotnet run *)",
+      "Bash(curl -s -o /dev/null -w \"home:%{http_code}\\\\n\" http://127.0.0.1:9000/)",
+      "Bash(curl -s -o /dev/null -w \"css:%{http_code}\\\\n\" http://127.0.0.1:9000/css/style.css)",
+      "Bash(curl -s -o /dev/null -w \"js:%{http_code}\\\\n\" http://127.0.0.1:9000/js/main.js)",
+      "Bash(curl -s -o /dev/null -w \"reviews-api:%{http_code}\\\\n\" http://127.0.0.1:9000/api/reviews)",
+      "Bash(curl -s http://127.0.0.1:9000/api/reviews)",
+      "Bash(curl -s http://127.0.0.1:9000/)"
+    ]
+  }
+}

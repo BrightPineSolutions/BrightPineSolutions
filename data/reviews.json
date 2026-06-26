@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Rajesh Menon",
+    "rating": 5,
+    "comment": "We brought BrightPine in to replace a patchwork of spreadsheets running our garment unit. Their ERP now ties merchandising, production and inventory together, and month-end reporting that used to take a week is done in a day. What impressed me most was how well they understood our shop-floor reality before writing a single line of code.",
+    "createdUtc": "2026-06-18T09:24:00.000Z"
+  },
+  {
+    "name": "Priya Nair",
+    "rating": 5,
+    "comment": "Our multi-vendor marketplace went live on schedule and handled the festive-season rush without a hitch. Seller onboarding is smooth and the order management dashboard is genuinely easy for our non-technical staff to use. The team stayed responsive at every step.",
+    "createdUtc": "2026-06-05T14:10:00.000Z"
+  },
+  {
+    "name": "Dr. Anand Krishnan",
+    "rating": 5,
+    "comment": "BrightPine built our hospital management system covering appointments, records and pharmacy billing. The rollout was planned carefully so our front desk was never disrupted, and the staff picked it up quickly. Patient wait times have noticeably dropped since we switched over.",
+    "createdUtc": "2026-05-22T11:05:00.000Z"
+  },
+  {
+    "name": "Karthik Subramanian",
+    "rating": 4,
+    "comment": "The retail POS they delivered has made daily billing and stock reconciliation far simpler across our three stores. We needed a couple of small tweaks after launch, but they turned them around quickly and never made us feel like a bother.",
+    "createdUtc": "2026-05-09T16:42:00.000Z"
+  },
+  {
+    "name": "Meera Iyer",
+    "rating": 5,
+    "comment": "Payroll and attendance used to be a monthly headache for our HR team. The portal BrightPine developed automated all of it, and the employee self-service feature cut down internal queries dramatically. Clean interface and rock-solid reliability.",
+    "createdUtc": "2026-04-27T08:55:00.000Z"
+  },
+  {
+    "name": "Vikram Desai",
+    "rating": 5,
+    "comment": "Their warehouse and shipment tracking solution gave us real visibility into stock and dispatch for the first time. We can finally see exactly where every order is. Delivery delays are down and our customers have noticed the difference.",
+    "createdUtc": "2026-04-12T13:30:00.000Z"
+  },
+  {
+    "name": "Sneha Reddy",
+    "rating": 4,
+    "comment": "We approached BrightPine for a custom web application with a fairly vague brief, and they helped us shape it into something practical. Communication was clear throughout and they were honest about timelines rather than over-promising.",
+    "createdUtc": "2026-03-28T10:15:00.000Z"
+  },
+  {
+    "name": "Arjun Pillai",
+    "rating": 5,
+    "comment": "The BI dashboards they set up turned our scattered data into something the leadership team actually uses to make decisions. What used to be guesswork is now backed by numbers we trust. Excellent work and a pleasure to deal with.",
+    "createdUtc": "2026-03-10T15:48:00.000Z"
+  },
+  {
+    "name": "Lakshmi Narayanan",
+    "rating": 5,
+    "comment": "BrightPine automated several repetitive back-office processes that were eating up hours every week. The team took time to map our workflow properly first, so the result fit exactly how we actually work. Highly recommended.",
+    "createdUtc": "2026-02-21T09:40:00.000Z"
+  },
+  {
+    "name": "Mohammed Faisal",
+    "rating": 5,
+    "comment": "We needed manufacturing software that could keep up with a busy production line, and BrightPine delivered a stable, well-thought-out system. Their post-launch support has been prompt and genuinely helpful every time we've reached out.",
+    "createdUtc": "2026-02-03T12:20:00.000Z"
+  }
+]

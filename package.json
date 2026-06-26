@@ -1,0 +1,9 @@
+{
+  "name": "brightpine-solutions",
+  "version": "1.0.0",
+  "description": "BrightPine Solutions marketing site with a minimal reviews API backed by data/reviews.json",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  }
+}

@@ -186,20 +186,29 @@ img { max-width: 100%; display: block; }
 .tech-grid span:hover { transform: translateY(-4px); box-shadow: var(--shadow-glow); }
 
 /* ---------- Leadership ---------- */
-.leaders { display: grid; grid-template-columns: repeat(2, 1fr); gap: 34px; max-width: 900px; margin: 0 auto; }
-.leader-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-md); transition: transform .25s ease, box-shadow .25s ease; }
-.leader-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-.leader-photo { position: relative; aspect-ratio: 4 / 5; background: var(--slate-100); overflow: hidden; }
-.leader-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; transition: transform .5s ease; }
-.leader-card:hover .leader-photo img { transform: scale(1.05); }
-.leader-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,31,68,0.4), transparent 40%); }
-.leader-body { padding: 24px 26px 28px; }
-.leader-body h3 { font-size: 1.4rem; }
-.leader-role { color: var(--accent-dark); font-weight: 600; font-family: var(--font-head); font-size: 0.92rem; margin: 4px 0 12px; }
-.leader-bio { font-size: 0.95rem; margin-bottom: 16px; }
-.leader-contact { list-style: none; display: grid; gap: 6px; border-top: 1px solid var(--line); padding-top: 16px; }
-.leader-contact a { font-size: 0.92rem; color: var(--slate-600); transition: color .15s; }
-.leader-contact a:hover { color: var(--accent-dark); }
+/* Compact horizontal cards: circular photo beside the text (was tall photo-on-top cards). */
+.leaders { display: grid; grid-template-columns: repeat(2, 1fr); gap: 26px; max-width: 920px; margin: 0 auto; }
+.leader-card { position: relative; display: flex; align-items: flex-start; gap: 22px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 28px 30px; box-shadow: var(--shadow-sm); overflow: hidden; transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease; }
+/* Accent bar that slides in along the top edge on hover. */
+.leader-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--emerald), var(--sky)); transform: scaleX(0); transform-origin: left; transition: transform .35s ease; }
+.leader-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); border-color: transparent; }
+.leader-card:hover::before { transform: scaleX(1); }
+
+/* Gradient ring around the circular photo. */
+.leader-photo { flex: 0 0 96px; width: 96px; height: 96px; border-radius: 50%; padding: 3px; background: linear-gradient(135deg, var(--emerald), var(--sky)); overflow: hidden; }
+.leader-photo img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: top center; border: 3px solid #fff; transition: transform .5s ease; }
+.leader-card:hover .leader-photo img { transform: scale(1.06); }
+
+.leader-body { min-width: 0; padding-top: 2px; }
+.leader-body h3 { font-size: 1.2rem; }
+.leader-role { color: var(--ink); font-weight: 700; font-family: var(--font-head); font-size: 0.9rem; margin: 3px 0 7px; }
+/* Small accent-tinted pill for the category label. */
+.leader-tag { display: inline-block; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.66rem; font-weight: 700; color: var(--accent-dark); background: rgba(21, 101, 216, 0.09); padding: 3px 10px; border-radius: 999px; margin-bottom: 13px; }
+.leader-bio { font-size: 0.9rem; line-height: 1.55; margin-bottom: 16px; }
+.leader-social { display: flex; gap: 10px; }
+/* Rounded icon chips that fill with the brand gradient on hover. */
+.leader-social a { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--slate-100); color: var(--slate-500); transition: color .2s ease, background .2s ease, transform .2s ease; }
+.leader-social a:hover { color: #fff; background: linear-gradient(135deg, var(--emerald), var(--sky)); transform: translateY(-3px); box-shadow: var(--shadow-glow); }
 
 /* ---------- Contact form ---------- */
 .contact-grid { align-items: start; }
@@ -354,7 +363,8 @@ img { max-width: 100%; display: block; }
 @media (max-width: 600px) {
   .hero-stats { gap: 26px; }
   .hero-stats strong { font-size: 1.7rem; }
-  .leaders { grid-template-columns: 1fr; max-width: 380px; }
+  .leaders { grid-template-columns: 1fr; max-width: 420px; gap: 22px; }
+  .leader-photo { flex-basis: 80px; width: 80px; height: 80px; }
   .cards { grid-template-columns: 1fr; }
   .mini-grid { grid-template-columns: 1fr; }
   .field-row { grid-template-columns: 1fr; }

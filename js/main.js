@@ -223,23 +223,44 @@
   }
 
   // ---- Customer reviews ----
-  // Reviews are shared across ALL visitors via the local Node server, which
-  // persists them to a real data/reviews.json file (GET/POST /api/reviews).
-  // Each review stores only: name, rating and review text.
+  // Reviews are shared across ALL visitors via a FREE cloud JSON store
+  // (JSONBin.io). The whole review list lives in a single "bin" as a JSON
+  // array; we GET the array to display it and PUT the updated array to save a
+  // new review. This works on any static host (GitHub Pages, Netlify, etc.) —
+  // no backend server of your own required.
   //
-  // NOTE: this requires the site to be served by server.js (run `node server.js`
-  // and open http://localhost:3000). Opening index.html directly from disk
-  // (file://) has no API, so reviews can't load or be posted.
+  // Each review stores: name, rating, review text and a created timestamp.
+  //
+  // ------------------------------------------------------------------
+  //  >>> PASTE YOUR JSONBin.io CREDENTIALS HERE <<<
+  // ------------------------------------------------------------------
+  //  1. Create a free account at https://jsonbin.io
+  //  2. Create a new PRIVATE bin and seed it with an empty array:  []
+  //  3. Copy the Bin ID (from the bin's URL) and your Master Key
+  //     (Account → API Keys) into the two placeholders below.
+  //
+  //  SECURITY NOTE: any key placed in front-end JavaScript is visible to
+  //  visitors (via "View Source" / DevTools). That is an unavoidable
+  //  limitation of a keys-in-the-browser, no-backend design — treat this
+  //  bin as PUBLICLY WRITABLE. To limit the blast radius:
+  //    • Use a dedicated bin that holds ONLY these reviews.
+  //    • In JSONBin, create an ACCESS KEY scoped to just Read + Update on
+  //      this one bin (instead of exposing your all-powerful Master Key).
+  //  For tamper-proof storage you eventually need a tiny serverless
+  //  function (e.g. Netlify/Vercel/Cloudflare) that holds the key
+  //  server-side — but the code below is a safe, free starting point.
+  // ------------------------------------------------------------------
+  var YOUR_API_URL = "https://api.jsonbin.io/v3/b/6a46078bda38895dfe20817e";
+  // Scoped Access Key (safer than the account-wide Master Key). It must have
+  // "Read" + "Update" permissions on this bin for display & submitting to work.
+  var YOUR_API_KEY = "$2a$10$gf9RUCc4iE8SUvSbl./F/ux3ot/RbQo1AWBBx495t20x8ikkzUL.2";
+
   (function reviews() {
     var form = document.getElementById("reviewForm");
     var list = document.getElementById("reviewList");
     var modal = document.getElementById("reviewModal");
     if (!form || !list || !modal) return;
 
-    // ---- API data source (same-origin; works on localhost and in production) ----
-    var REVIEWS_API = "/api/reviews";
-    // An API is only reachable when served over http(s), not from file://.
-    var hasApi = /^https?:$/.test(window.location.protocol);
     var nameEl = document.getElementById("reviewName");
     var commentEl = document.getElementById("reviewComment");
     var rNote = document.getElementById("reviewNote");
@@ -276,29 +297,79 @@
       if (type === "ok") rNoteTimer = setTimeout(function () { rNote.textContent = ""; rNote.className = "form-note"; }, 6000);
     }
 
-    // ---- Data source: the shared reviews.json file, via the server API ----
-    // Read the full review list from the server (shared for all visitors).
-    function loadReviews() {
-      if (!hasApi) return Promise.reject(new Error("no-api"));
-      return fetch(REVIEWS_API)
-        .then(function (r) { if (!r.ok) throw new Error("load failed"); return r.json(); })
+    // ---- Cloud data source (JSONBin.io) ----
+    // Auth header sent on every request. "X-Master-Key" works with either a
+    // Master Key or a scoped Access Key.
+    function authHeaders(extra) {
+      // Access Keys authenticate via the X-Access-Key header (Master Keys would
+      // use X-Master-Key instead).
+      var h = { "X-Access-Key": YOUR_API_KEY };
+      // Skip the bin's usage-count metadata in GET responses (smaller payload).
+      h["X-Bin-Meta"] = "false";
+      if (extra) Object.keys(extra).forEach(function (k) { h[k] = extra[k]; });
+      return h;
+    }
+
+    // True only once the placeholders have actually been replaced. Guards
+    // against firing requests at the literal "YOUR_..." strings.
+    function isConfigured() {
+      return YOUR_API_URL.indexOf("YOUR_BIN_ID") === -1 && YOUR_API_KEY !== "YOUR_API_KEY";
+    }
+
+    // Static seed file bundled with the site. Used to DISPLAY reviews when the
+    // cloud store isn't configured yet, or if a cloud read fails — so the
+    // testimonials never show up empty. A RELATIVE path so it also resolves
+    // under a project subpath (e.g. username.github.io/repo/).
+    var REVIEWS_FILE = "data/reviews.json";
+    function loadStatic() {
+      return fetch(REVIEWS_FILE, { cache: "no-store" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("Static read failed (HTTP " + r.status + ")");
+          return r.json();
+        })
         .then(function (arr) { return Array.isArray(arr) ? arr : []; });
     }
 
-    // Persist one review by POSTing it to the server, then return the updated list.
-    function saveReview(review) {
-      if (!hasApi) return Promise.reject(new Error("no-api"));
-      return fetch(REVIEWS_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(review)
+    // READ (GET): pull the current review array from the cloud bin.
+    // JSONBin returns the stored JSON directly when X-Bin-Meta:false is set;
+    // otherwise it wraps it as { record: [...] } — we handle both shapes.
+    // If the store isn't configured (or a cloud read fails), fall back to the
+    // bundled static file so existing reviews still display.
+    function loadReviews() {
+      if (!isConfigured()) return loadStatic();
+      return fetch(YOUR_API_URL + "/latest", {
+        method: "GET",
+        headers: authHeaders(),
+        cache: "no-store"
       })
         .then(function (r) {
-          return r.json().catch(function () { return {}; }).then(function (b) {
-            if (!r.ok) throw new Error(b.message || "save failed");
-            return loadReviews(); // re-fetch the authoritative list
-          });
+          if (!r.ok) throw new Error("Read failed (HTTP " + r.status + ")");
+          return r.json();
+        })
+        .then(function (data) {
+          var arr = Array.isArray(data) ? data : (data && data.record);
+          return Array.isArray(arr) ? arr : [];
+        })
+        .catch(loadStatic);
+    }
+
+    // WRITE (PUT): read the current list, append the new review, then send the
+    // whole updated array back. JSONBin replaces the bin's contents on PUT, so
+    // we must send the FULL array — never just the single new item.
+    function saveReview(review) {
+      if (!isConfigured()) return Promise.reject(new Error("not-configured"));
+      return loadReviews().then(function (current) {
+        // Newest first, matching how the cards are displayed.
+        var updated = [review].concat(current);
+        return fetch(YOUR_API_URL, {
+          method: "PUT",
+          headers: authHeaders({ "Content-Type": "application/json" }),
+          body: JSON.stringify(updated)
+        }).then(function (r) {
+          if (!r.ok) throw new Error("Save failed (HTTP " + r.status + ")");
+          return updated; // authoritative list we just persisted
         });
+      });
     }
 
     // ---- Modal open / close ----
@@ -552,15 +623,12 @@
       if (!rating) return setRNote("Please select a star rating.", "err");
       if (!comment) return setRNote("Please add your review.", "err");
 
-      if (!hasApi) {
-        return setRNote("Reviews are saved on the server — please open the site via http://localhost:3000 (run: node server.js).", "err");
-      }
-
       submitting = true;
       var btn = document.getElementById("reviewSubmitBtn");
       btn.disabled = true; btn.textContent = "Submitting...";
 
-      var review = { name: name, rating: rating, comment: comment };
+      // The timestamp is stamped client-side (there is no server to do it).
+      var review = { name: name, rating: rating, comment: comment, createdUtc: new Date().toISOString() };
 
       saveReview(review)
         .then(function (arr) {
@@ -569,8 +637,12 @@
           closeModal();
           renderList(arr);
         })
-        .catch(function () {
-          setRNote("Sorry, we couldn't save your review right now. Please check your connection and try again.", "err");
+        .catch(function (err) {
+          if (err && err.message === "not-configured") {
+            setRNote("Reviews aren't connected yet — add your JSONBin.io API URL and key in js/main.js.", "err");
+          } else {
+            setRNote("Sorry, we couldn't save your review right now. Please check your connection and try again.", "err");
+          }
         })
         .finally(function () { submitting = false; btn.disabled = false; btn.textContent = "Submit Review"; });
     });
